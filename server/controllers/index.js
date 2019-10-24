@@ -43,11 +43,6 @@ const hostIndex = (req, res) => {
 const readAllCats = (req, res, callback) => {
   // Call the model's built in find function and provide it a
   // callback to run when the query is complete
-  // Find has several versions
-  // one parameter is just the callback
-  // two parameters is JSON of search criteria and callback.
-  // That limits your search to only things that match the criteria
-  // The find function returns an array of matching objects
   Cat.find(callback);
 };
 
@@ -73,11 +68,7 @@ const readCat = (req, res) => {
     return res.json(doc);
   };
 
-  // Call the static function attached to CatModels.
-  // This was defined in the Schema in the Model file.
-  // This is a custom static function added to the CatModel
-  // Behind the scenes this runs the findOne method.
-  // You can find the findByName function in the model file.
+  // Call the static function attached to CatModel.
   Cat.findByName(name1, callback);
 };
 
@@ -140,9 +131,6 @@ const hostPage4 = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const getName = (req, res) => {
-  // res.json returns json to the page.
-  // Since this sends back the data through HTTP
-  // you can't send any more data to this user until the next response
   res.json({ name: lastAdded.name });
 };
 
@@ -213,7 +201,7 @@ const updateLastDog = (req, res) => {
   lastDogAdded.age++;
 
   // create a new save promise for the database
-  const savePromise = lastAdded.save();
+  const savePromise = lastDogAdded.save();
 
   // send back the name as a success for now
   savePromise.then(() => res.json({
@@ -238,6 +226,10 @@ const searchName = (req, res) => {
       return res.json({ err }); // if error, return it
     }
 
+    if (!doc) {
+      return res.json({ error: 'No cats found' });
+    }
+
     // if a match, send the match back
     return res.json({ name: doc.name, beds: doc.bedsOwned });
   });
@@ -251,7 +243,7 @@ const searchDog = (req, res) => Dog.findByName(req.query.name, (err, doc) => {
   if (!doc) {
     return res.json({ error: 'No dogs found' });
   }
-  return res.json({ name: lastDogAdded.name, age: lastDogAdded.age, breed: lastDogAdded.breed });
+  return updateLastDog(req, res);
 });
 
 // function to handle a request to update the last added object
